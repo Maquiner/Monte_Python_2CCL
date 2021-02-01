@@ -1,5 +1,4 @@
 from scipy.interpolate import interp1d
-from scipy.special import jv
 import os
 import yaml
 import itertools
@@ -10,23 +9,14 @@ import warnings
 import pyccl as ccl
 import shutil  # To copy the yml file to the outdir
 import sacc
-import scipy.integrate as integrate
-
-sys.path.insert(1, '/home/zcapjru/PhD/Pk_Emulator')
-import scipy
-import itertools
-from numpy import linalg
-from sklearn.decomposition import PCA
-import lin_pk_emul as emul
 
 
-class cl_cross_corr_kv450(Likelihood):
+
+class cl_cross_corr_2CCL(Likelihood):
 
     # initialization routine
 
     def __init__(self, path, data, command_line):
-        # Exactly the same as cl_cross_corr_v2 (DES)
-        # TODO: Can it be generalized?
 
         ##########
         # First read the YAML file and populate self.use_nuisance
@@ -80,24 +70,10 @@ class cl_cross_corr_kv450(Likelihood):
             dtype = self.get_dtype_for_trs(tr0, tr1)
             ells = np.concatenate((ells, self.scovG.get_ell_cl(dtype, tr0, tr1)[0]))
 
-        self.Cl_star = self.get_Cl_star(ells)
-
         # Save a copy of the covmat, ells and cls for the tracer_combinations used for debugging
         np.savez_compressed(os.path.join(self.outdir, 'cl_cross_corr_data_info.npz'), cov=self.cov,
-                            ells=ells, cls=self.data, tracers=self.scovG.get_tracer_combinations(), dof=self.dof,
-                            Cl_star=self.Cl_star)
+                            ells=ells, cls=self.data, tracers=self.scovG.get_tracer_combinations(), dof=self.dof)
         # end of initialization
-
-
-    def get_Cl_star(self, ells):
-        fname = self.params['xi_star_file']
-        theta, xip_c_per_zbin, xim_c_per_zbin = np.loadtxt(fname, usecols=(1, 3, 4), unpack=True)
-        ells_unique = np.unique(ells)
-        integrand_unique = integrate.simps(theta * xip_c_per_zbin * jv(0, ells_unique[:, None] * theta), theta, axis=1)
-        Cl_star_unique = 2 * np.pi * integrand_unique
-
-        return interp1d(ells_unique, Cl_star_unique)(ells)
-
 
     def load_sacc_file(self, sacc_file):
         print(f'Loading {sacc_file}')
@@ -186,14 +162,18 @@ class cl_cross_corr_kv450(Likelihood):
 
         # Initialize logprior
         lp = 0.
+
         cosmo_gro = ccl.Cosmology(Omega_c=data.mcmc_parameters['Omega_c^{gro}']['current'],
-                              Omega_b=data.mcmc_parameters['Omega_b^{gro}']['current'], 
-                              h=data.mcmc_parameters['h^{gro}']['current'],
-                              sigma8=data.mcmc_parameters['sigma8^{gro}']['current'], 
-                              n_s=data.mcmc_parameters['n_s^{gro}']['current'],
-                                      transfer_function='boltzmann_class')
-        
-        self._use_emulator()
+                Omega_b=data.mcmc_parameters['Omega_b^{gro}']['current'],
+                h=data.mcmc_parameters['h^{gro}']['6current'], 
+                sigma8=data.mcmc_parameters['sigma8^{gro}']['current'], 
+                n_s=data.mcmc_parameters['n_s^{gro}']['current'],
+                transfer_function='boltzmann_class')
+
+        k_arr, pk0 = self.emulator.get_emulated_Pk(cosmo_gro['Omega_c'], cosmo_gro['h'])
+        pk0_k = scipy.interpolate.interp1d(k_arr, np.exp(pk0.real), kind='linear')
+        pknew = ccl.Pk2D(pkfunc=pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
+        ccl.ccllib.cosmology_compute_linear_power(cosmo_gro.cosmo, pknew.psp, 0)
 
         # Initialize dictionary with ccl_tracers
         ccl_tracers = {}
@@ -223,16 +203,15 @@ class cl_cross_corr_kv450(Likelihood):
                 # Get tracer
                 ccl_tracers[trname] = ccl.NumberCountsTracer(cosmo.cosmo_ccl,has_rsd=False,dndz=(z_dz, pz),bias=(z, bz))
             elif trvals['type'] == 'wl':
-                # # Get log prior for m
-                # pname = 'wl_m_{}'.format(trvals['bin'])
-                # value = data.mcmc_parameters[pname]['current']*data.mcmc_parameters[pname]['scale']
-                # lp = lp + self.get_loggaussprior(value, *trvals['m'])
+                # Get log prior for m
+                pname = 'wl_m_{}'.format(trvals['bin'])
+                value = data.mcmc_parameters[pname]['current']*data.mcmc_parameters[pname]['scale']
+                lp = lp + self.get_loggaussprior(value, *trvals['m'])
                 # Calculate bias IA
                 A = data.mcmc_parameters['wl_ia_A']['current']*data.mcmc_parameters['wl_ia_A']['scale']
                 eta = data.mcmc_parameters['wl_ia_eta']['current']*data.mcmc_parameters['wl_ia_eta']['scale']
                 z0 = data.mcmc_parameters['wl_ia_z0']['current']*data.mcmc_parameters['wl_ia_z0']['scale']
-                # In pyccl2: bz = - input * 5e-14 * rho_m / D
-                bz = A / cosmo.cosmo_ccl['h'] * ((1. + z)/(1. + z0)) ** eta
+                bz = A*((1.+z)/(1.+z0))**eta*0.0139/0.013872474  # pyccl2 -> has already the factor inside. Only needed bz
                 # Get tracer
                 ccl_tracers[trname] = ccl.WeakLensingTracer(cosmo.cosmo_ccl, dndz=(z_dz,pz), ia_bias=(z,bz))
             elif trvals['type'] == 'cv':
@@ -257,20 +236,15 @@ class cl_cross_corr_kv450(Likelihood):
                 cl_unbinned = ccl.angular_cl(cosmo.cosmo_ccl, ccl_tracers[tr1], ccl_tracers[tr2], w.values)
             # Convolved with window functions.
             cl_binned = np.dot(w.weight.T, cl_unbinned)
+            for tr in [tr1, tr2]:
+                trvals = self.params['tracers'][tr]
+                if  trvals['type'] == 'wl':
+                    pname = 'wl_m_{}'.format(trvals['bin'])
+                    m = data.mcmc_parameters[pname]['current']*data.mcmc_parameters[pname]['scale']
+                    cl_binned = (1.+m)*cl_binned
 
             # Assign to theory vector.
             theory[ind] = cl_binned
-
-        # Constant offset
-        # In Cl space we are not sensitive to constant correlations
-        # dc = data.mcmc_parameters['dc']['current']*data.mcmc_parameters['dc']['scale']
-        # theory += dc ** 2. # One per each field
-
-        # 2D additive bias
-        Ac = data.mcmc_parameters['kv450_Ac']['current']*data.mcmc_parameters['kv450_Ac']['scale']
-        theory += Ac**2 * self.Cl_star
-
-
 
         # Get chi2
         chi2 = (self.data-theory).dot(self.icov).dot(self.data-theory)
@@ -284,9 +258,3 @@ class cl_cross_corr_kv450(Likelihood):
 
 
         return lkl
-    
-    def _use_emulator(self):
-        k_arr, pk0 = self.emulator.get_emulated_Pk(cosmo_gro['Omega_c'], cosmo_gro['h'])
-        pk0_k = scipy.interpolate.interp1d(k_arr, np.exp(pk0.real), kind='linear')
-        pknew = ccl.Pk2D(pkfunc=pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
-        ccl.ccllib.cosmology_compute_linear_power(cosmo_gro.cosmo, pknew.psp, 0)
