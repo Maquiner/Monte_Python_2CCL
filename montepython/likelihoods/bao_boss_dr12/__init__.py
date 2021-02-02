@@ -1,4 +1,5 @@
 import os
+import pyccl as ccl
 import numpy as np
 import warnings
 import montepython.io_mp as io_mp
@@ -50,7 +51,10 @@ class bao_boss_dr12(Likelihood):
 
         # number of data points
         self.num_points = np.shape(self.cov_data)[0]
-
+        
+        self.classy = ccl.boltzmann.classy.Class()
+        #self.classy.set(self.params)
+        self.classy.compute()
         # end of initialization
 
     # compute likelihood
@@ -61,13 +65,16 @@ class bao_boss_dr12(Likelihood):
         # ordered by redshift bin (z=[0.38, 0.51, 0.61]) as following:
         # data_array = [DM_diff(z=0.38), H_diff(z=0.38), DM_diff(z=0.51), .., .., ..]
         data_array = np.array([], 'float64')
+        
+        # Needs to be implemented
+        #self.classy.set(self.params) 
 
         # for each point, compute comoving angular diameter distance D_M = (1 + z) * D_A,
         # sound horizon at baryon drag rs_d, theoretical prediction
         for i in range(self.num_bins):
-            DM_at_z = cosmo.angular_distance(self.z[i]) * (1. + self.z[i])
-            H_at_z = cosmo.Hubble(self.z[i]) * conts.c / 1000.0
-            rd = cosmo.rs_drag() * self.rs_rescale
+            DM_at_z = self.classy.angular_distance(self.z[i]) * (1. + self.z[i])
+            H_at_z = self.classy.Hubble(self.z[i]) * conts.c / 1000.0
+            rd = self.classy.rs_drag() * self.rs_rescale
 
             theo_DM_rdfid_by_rd_in_Mpc = DM_at_z / rd * self.rd_fid_in_Mpc
             theo_H_rd_by_rdfid = H_at_z * rd / self.rd_fid_in_Mpc
@@ -83,6 +90,17 @@ class bao_boss_dr12(Likelihood):
         # compute chi squared
         inv_cov_data = np.linalg.inv(self.cov_data)
         chi2 = np.dot(np.dot(data_array,inv_cov_data),data_array)
+        
+        # fix nuisances
+        print('hollow nest')
+        #print(data.mcmc_parameters['D_z1']['current'])
+        #print(self.classy.scale_independent_growth_factor(0.15))
+
+        #data.mcmc_parameters['D_z1']['current'] = self.classy.scale_independent_growth_factor(0.15)
+        #data.mcmc_parameters['D_z2']['current'] = self.classy.scale_independent_growth_factor(0.30) 
+        #data.mcmc_parameters['D_z3']['current'] = self.classy.scale_independent_growth_factor(0.45) 
+        #data.mcmc_parameters['D_z4']['current'] = self.classy.scale_independent_growth_factor(0.60) 
+        #data.mcmc_parameters['D_z5']['current'] = self.classy.scale_independent_growth_factor(0.75) 
 
         # return ln(L)
         loglkl = - 0.5 * chi2
