@@ -1,0 +1,8 @@
+# DESI dA
+# Font-Ribera et al. 2014 (arXiv:1308.4164v2)
+# By  Andreu Font-Ribera May 2014
+DESI_dA.data_directory      = data.path['data']
+DESI_dA.data_file           = 'DESI_dA_data/data.txt'
+DESI_dA.cov_file            = 'DESI_dA_data/cov_mat.txt'
+
+DESI_dA.use_nuisance = ['D_z1', 'D_z2','D_z3', 'D_z4','D_z5']
