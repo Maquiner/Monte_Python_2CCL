@@ -24,10 +24,8 @@ data.experiments=['bao_boss_dr12']
 data.parameters['h']        = [ 0.685000,    0.65,    0.8,     0.002,  1.,  'cosmo']
 data.parameters['Omega_c']  = [ 0.250000, 0.24000, 0.30000,   0.002,  1.,  'cosmo']
 data.parameters['Omega_b']  = [ 0.047900,    0,    1,     0.002,  1.,  'cosmo']
-data.parameters['sigma8']  = [ 0.805000, 0.80000, 0.88000,   0.002,  1.,  'cosmo']
+data.parameters['sigma8']   = [ 0.805000, 0.80000, 0.88000,   0.002,  1.,  'cosmo']
 data.parameters['n_s']      = [ 0.973000,    0,    1.5,     0.002,  1.,  'cosmo']
-
-#data.parameters['ln10_A_s'] = [ 3.044522,    None,    None,     0.1,  1.,  'cosmo']
 data.parameters['w_0']      = [-1.000000,    -1,    1,     0.02,  1.,  'cosmo']
 data.parameters['w_a']      = [ 0.000000,    0,    1,     0.02,  1.,  'cosmo']
 
@@ -42,16 +40,16 @@ data.cosmo_arguments['Omega_k'] = 0.
 # three species contribute equally
 # to the radiation density at large
 # redshift, with a total of Neff=3.046
-data.cosmo_arguments['m_nu'] = 0.06
-data.cosmo_arguments['T_CMB'] = 0.71611
+#data.cosmo_arguments['m_nu'] = 0.06
+#data.cosmo_arguments['T_CMB'] = 0.71611
 
 #------- Nuisance -----
 
-#data.parameters['D_z1'] = [ 0., None, None, 0.1, 1, 'nuisance']
-#data.parameters['D_z2'] = [ 0., None, None, 0.1, 1, 'nuisance']
-#data.parameters['D_z3'] = [ 0., None, None, 0.1, 1, 'nuisance']
-#data.parameters['D_z4'] = [ 0., None, None, 0.1, 1, 'nuisance']
-#data.parameters['D_z5'] = [ 0., None, None, 0.1, 1, 'nuisance']
+data.parameters['D_z1'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
+data.parameters['D_z2'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
+data.parameters['D_z3'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
+data.parameters['D_z4'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
+data.parameters['D_z5'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
 
 
 

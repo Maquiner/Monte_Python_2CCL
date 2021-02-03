@@ -44,8 +44,7 @@ tracers:
     bin: 4
 
 # TODO: automatize
-use_nuisance: ['wl_dz_0', 'wl_dz_1', 'wl_dz_2', 'wl_dz_3',  'wl_dz_4','wl_ia_A', 'wl_ia_eta', 'wl_ia_z0', 'kv450_Ac', 
-'omega_cdm^{gro}', 'ln10^{10}A_s^{gro}', 'omega_b^{gro}', 'n_s^{gro}', 'h^{gro}'] #, 'kv450_B']
+use_nuisance: ['wl_dz_0', 'wl_dz_1', 'wl_dz_2', 'wl_dz_3',  'wl_dz_4','wl_ia_A', 'wl_ia_eta', 'wl_ia_z0', 'kv450_Ac'] #, 'kv450_B']
 # biases:
 #   - wl:
 #     m: True

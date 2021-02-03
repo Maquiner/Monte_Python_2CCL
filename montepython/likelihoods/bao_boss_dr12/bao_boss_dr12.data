@@ -7,4 +7,4 @@ bao_boss_dr12.cov_file            = 'COMBINEDDR12_BAO_consensus_dM_Hz/BAO_consen
 bao_boss_dr12.rs_rescale          = 1.
 bao_boss_dr12.rd_fid_in_Mpc       = 147.78
 
-#bao_boss_dr12.use_nuisance = ['D_z1', 'D_z2','D_z3', 'D_z4','D_z5']
+bao_boss_dr12.use_nuisance = ['D_z1', 'D_z2','D_z3', 'D_z4','D_z5']
