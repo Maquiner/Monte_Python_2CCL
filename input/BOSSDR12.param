@@ -21,13 +21,13 @@ data.experiments=['bao_boss_dr12']
 # Cosmological parameters list
 # main parameters to extract:
 
-data.parameters['h']        = [ 0.685000,    0.65,    0.8,     0.002,  1.,  'cosmo']
-data.parameters['Omega_c']  = [ 0.250000, 0.24000, 0.30000,   0.002,  1.,  'cosmo']
-data.parameters['Omega_b']  = [ 0.047900,    0,    1,     0.002,  1.,  'cosmo']
-data.parameters['sigma8']   = [ 0.805000, 0.80000, 0.88000,   0.002,  1.,  'cosmo']
-data.parameters['n_s']      = [ 0.973000,    0,    1.5,     0.002,  1.,  'cosmo']
-data.parameters['w_0']      = [-1.000000,    -1,    1,     0.02,  1.,  'cosmo']
-data.parameters['w_a']      = [ 0.000000,    0,    1,     0.02,  1.,  'cosmo']
+data.parameters['h']        = [ 0.685000, 0.64, 0.82,    0.0065,  1.,  'cosmo']
+data.parameters['Omega_c']  = [ 0.250000, 0.01, 0.9,     0.02,    1.,  'cosmo']
+data.parameters['Omega_b']  = [ 0.047900, 0.01, 0.1,     0.002,    1.,  'cosmo']
+#data.parameters['sigma8']   = [ 0.805000, 0.70, 0.88,    0.002,   1.,  'cosmo']
+#data.parameters['n_s']      = [ 0.96229,  0.7,  1.3,     0.0074,  1.,  'cosmo']
+data.parameters['w_0']      = [-1.000000, -1,   1,       0.2,     1.,  'cosmo']
+data.parameters['w_a']      = [ 0.000000, -1,   1,       0.02,    1.,  'cosmo']
 
 # Other cosmo parameters (fixed parameters, precision parameters, etc.)
 
@@ -45,13 +45,32 @@ data.cosmo_arguments['Omega_k'] = 0.
 
 #------- Nuisance -----
 
-data.parameters['D_z1'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
-data.parameters['D_z2'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
-data.parameters['D_z3'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
-data.parameters['D_z4'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
-data.parameters['D_z5'] = [ 0., 0, 1, 0.1, 1, 'nuisance']
+data.parameters['D_z0.00'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z0.15'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z0.30'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z0.45'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z0.60'] = [ 0., 0, 1, 0, 1, 'derived']
+
+data.parameters['D_z0.75'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z0.90'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.05'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.20'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.35'] = [ 0., 0, 1, 0, 1, 'derived']
+
+data.parameters['D_z1.50'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.65'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.80'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z1.95'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z2.10'] = [ 0., 0, 1, 0, 1, 'derived']
+
+data.parameters['D_z2.25'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z2.40'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z2.55'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z2.70'] = [ 0., 0, 1, 0, 1, 'derived']
+data.parameters['D_z2.85'] = [ 0., 0, 1, 0, 1, 'derived']
 
 
 
 # only needed for regular MCMC:
 data.write_step = 1
+

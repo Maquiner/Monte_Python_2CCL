@@ -69,7 +69,7 @@ class bao_boss_dr12(Likelihood):
                 'Omega_cdm': data.mcmc_parameters['Omega_c']['current'],
                 'Omega_b': data.mcmc_parameters['Omega_b']['current'],
                 #'sigma8': 2.43e-9 * (data.mcmc_parameters['sigma8']['current'] / 0.87659)**2,
-                'n_s': data.mcmc_parameters['n_s']['current'],
+                #'n_s': data.mcmc_parameters['n_s']['current'],
                 'Omega_Lambda': 0,
                 'w0_fld': data.mcmc_parameters['w_0']['current'],
                 'wa_fld': data.mcmc_parameters['w_a']['current']}
@@ -96,13 +96,6 @@ class bao_boss_dr12(Likelihood):
         # compute chi squared
         inv_cov_data = np.linalg.inv(self.cov_data)
         chi2 = np.dot(np.dot(data_array,inv_cov_data),data_array)
-        
-        # fix nuisances
-        data.mcmc_parameters['D_z1']['current'] = self.classy.scale_independent_growth_factor(0.15)
-        data.mcmc_parameters['D_z2']['current'] = self.classy.scale_independent_growth_factor(0.30) 
-        data.mcmc_parameters['D_z3']['current'] = self.classy.scale_independent_growth_factor(0.45) 
-        data.mcmc_parameters['D_z4']['current'] = self.classy.scale_independent_growth_factor(0.60) 
-        data.mcmc_parameters['D_z5']['current'] = self.classy.scale_independent_growth_factor(0.75) 
 
         # return ln(L)
         loglkl = - 0.5 * chi2

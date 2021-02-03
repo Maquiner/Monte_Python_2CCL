@@ -43,6 +43,11 @@ class CCL():
     def get_S8(self):
         S8 = self.get_sigma8()*(self.get_Omegam()/0.3)**(0.5)
         return S8
+    
+    def get_D_z(self, z):
+        a = 1/(1+z)
+        D_z = ccl.background.growth_rate(self.cosmo_ccl, a)
+        return D_z 
 
     def get_growth_factor(self, a):
         return ccl.background.growth_factor(self.cosmo_ccl, a)
@@ -102,6 +107,9 @@ class CCL():
                 value = self.get_Omegam()
             elif name == 'S_8':
                 value = self.get_S8()
+            elif 'D_z' in name:
+                z = float(name[3:])
+                value = self.get_D_z(z)
             else:
                 msg = "%s was not recognized as a derived parameter" % name
                 raise RuntimeError(msg)
