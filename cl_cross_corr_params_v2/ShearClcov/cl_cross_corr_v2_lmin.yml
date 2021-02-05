@@ -1,8 +1,8 @@
 # Let's start just looking at the shear, using xC-ell/ShearCl DES data
 
 # Path to sacc files
-sacc_covG: '/mnt/extraspace/gravityls_3/S8z/Cls_2/4096_asDavid_recompute_newfid/cls_covG_covNG_DESgc_DESwl.fits'
-#sacc_covNG: '/mnt/extraspace/gravityls_3/S8z/Cls_2/4096_asDavid_recompute_newfid/cls_covG_covNG_DESgc_DESwl.fits'
+sacc_covG: 'cls_signal_covG_ns4096.fits'
+sacc_covNG: 'cls_noise_covNG_ns4096.fits'
 
 # Compute the Cls at all ells or interpolate
 interpolate_cls: True
@@ -51,22 +51,22 @@ tracer_combinations:
 
     # wl -wl
     - tracers: ['bin0', 'bin0']
-      ell_cuts: [0, 101]
+      ell_cuts: [30, 2000]
     - tracers: ['bin0', 'bin1']
-      ell_cuts: [0, 115]
+      ell_cuts: [30, 2000]
     - tracers: ['bin0', 'bin2']
-      ell_cuts: [0, 129]
+      ell_cuts: [30, 2000]
     - tracers: ['bin0', 'bin3']
-      ell_cuts: [0, 137]
+      ell_cuts: [30, 2000]
     - tracers: ['bin1', 'bin1']
-      ell_cuts: [0, 135]
+      ell_cuts: [30, 2000]
     - tracers: ['bin1', 'bin2']
-      ell_cuts: [0, 156]
+      ell_cuts: [30, 2000]
     - tracers: ['bin1', 'bin3']
-      ell_cuts: [0, 167]
+      ell_cuts: [30, 2000]
     - tracers: ['bin2', 'bin2']
-      ell_cuts: [0, 188]
+      ell_cuts: [30, 2000]
     - tracers: ['bin2', 'bin3']
-      ell_cuts: [0, 207]
+      ell_cuts: [30, 2000]
     - tracers: ['bin3', 'bin3']
-      ell_cuts: [0, 235]
+      ell_cuts: [30, 2000]
