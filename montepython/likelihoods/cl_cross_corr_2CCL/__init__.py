@@ -171,7 +171,7 @@ class cl_cross_corr_2CCL(Likelihood):
 
         cosmo_gro = ccl.Cosmology(Omega_c=data.mcmc_parameters['Omega_c^{gro}']['current'],
                 Omega_b=data.mcmc_parameters['Omega_b^{gro}']['current'],
-                h=data.mcmc_parameters['h^{gro}']['6current'], 
+                h=data.mcmc_parameters['h^{gro}']['current'], 
                 sigma8=data.mcmc_parameters['sigma8^{gro}']['current'], 
                 n_s=data.mcmc_parameters['n_s^{gro}']['current'],
                 transfer_function='boltzmann_class')
