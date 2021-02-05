@@ -10,6 +10,12 @@ import pyccl as ccl
 import shutil  # To copy the yml file to the outdir
 import sacc
 
+#Emulators import
+import scipy
+import itertools
+from numpy import linalg
+from sklearn.decomposition import PCA
+import lin_pk_emul as emul
 
 
 class cl_cross_corr_2CCL(Likelihood):

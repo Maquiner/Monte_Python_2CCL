@@ -1,3 +1,0 @@
-# Defining dummy variable
-# Use cl_cross_corr_kv450.yml to config it
-cl_cross_corr_kv450.dummy = None
