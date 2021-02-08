@@ -270,6 +270,6 @@ class cl_cross_corr_2CCL(Likelihood):
         return lkl
 
     def pk2D(self, pk):
-            def pknew(k, a):
-                return ccl.background.growth_factor(cosmo, a) ** 2 * pk(k)
+        def pknew(k, a):
+            return ccl.background.growth_factor(cosmo, a) ** 2 * pk(k)
         return pknew
