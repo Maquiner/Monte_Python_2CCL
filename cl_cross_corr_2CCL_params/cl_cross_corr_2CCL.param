@@ -1,6 +1,6 @@
 #------ Experiments ------
 
-data.experiments=['cl_cross_corr_2CCl']
+data.experiments=['cl_cross_corr_2CCL']
 data.over_sampling=[1, 4]
 
 

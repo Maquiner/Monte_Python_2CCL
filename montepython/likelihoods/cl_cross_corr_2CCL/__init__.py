@@ -9,12 +9,13 @@ import warnings
 import pyccl as ccl
 import shutil  # To copy the yml file to the outdir
 import sacc
-
-#Emulators import
 import scipy
-import itertools
 from numpy import linalg
 from sklearn.decomposition import PCA
+
+#Emulators import
+import sys
+sys.path.insert(1, '/mnt/zfsusers/jaimerz/Monte_Python_2CCL/montepython/likelihoods/cl_cross_corr_2CCL')
 import lin_pk_emul as emul
 
 
@@ -79,6 +80,9 @@ class cl_cross_corr_2CCL(Likelihood):
         # Save a copy of the covmat, ells and cls for the tracer_combinations used for debugging
         np.savez_compressed(os.path.join(self.outdir, 'cl_cross_corr_data_info.npz'), cov=self.cov,
                             ells=ells, cls=self.data, tracers=self.scovG.get_tracer_combinations(), dof=self.dof)
+        # start emulator
+        self.emulator = emul.LinPkEmulator(10, 200, 100, new=False)
+
         # end of initialization
 
     def load_sacc_file(self, sacc_file):
