@@ -182,7 +182,7 @@ class cl_cross_corr_2CCL(Likelihood):
 
         k_arr, pk0 = self.emulator.get_emulated_Pk(cosmo_gro['Omega_c'], cosmo_gro['h'])
         pk0_k = scipy.interpolate.interp1d(k_arr, np.exp(pk0.real), kind='linear')
-        pknew = ccl.Pk2D(pkfunc=pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
+        pknew = ccl.Pk2D(pkfunc=self.pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
         ccl.ccllib.cosmology_compute_linear_power(cosmo_gro.cosmo, pknew.psp, 0)
 
         # Initialize dictionary with ccl_tracers
@@ -268,3 +268,8 @@ class cl_cross_corr_2CCL(Likelihood):
 
 
         return lkl
+
+    def pk2D(self, pk):
+            def pknew(k, a):
+                return ccl.background.growth_factor(cosmo, a) ** 2 * pk(k)
+        return pknew
