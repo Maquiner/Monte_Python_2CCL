@@ -53,7 +53,7 @@ class bao_boss_dr12(Likelihood):
         self.num_points = np.shape(self.cov_data)[0]
         
         self.classy = ccl.boltzmann.classy.Class()
-        self.classy.compute()
+        # self.classy.compute()
         # end of initialization
 
     # compute likelihood
@@ -74,6 +74,7 @@ class bao_boss_dr12(Likelihood):
                 'w0_fld': data.mcmc_parameters['w_0']['current'],
                 'wa_fld': data.mcmc_parameters['w_a']['current']}
         self.classy.set(sampled_params) 
+        self.classy.compute()
 
         # for each point, compute comoving angular diameter distance D_M = (1 + z) * D_A,
         # sound horizon at baryon drag rs_d, theoretical prediction

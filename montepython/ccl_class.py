@@ -1,5 +1,10 @@
 import numpy as np
 import pyccl as ccl
+import data
+#Emulators import
+import sys
+sys.path.insert(1, '/mnt/zfsusers/jaimerz/Monte_Python_2CCL/montepython/likelihoods/cl_cross_corr_2CCL')
+import lin_pk_emul as emul
 
 
 class CCL():
@@ -23,6 +28,9 @@ class CCL():
             'wa':  0.0
         }
 
+        # Start up emulator
+        self.emulator = emul.LinPkEmulator(10, 200, 100, new=False)
+
     def get_cosmo_ccl(self):
         param_dict = dict({'transfer_function': 'boltzmann_class'},
                           **self.pars)
@@ -32,6 +40,14 @@ class CCL():
             pass
         cosmo_ccl = ccl.Cosmology(**param_dict)
         return cosmo_ccl
+
+    def get_cosmo_gro(self):
+        cosmo_gro = ccl.Cosmology(Omega_c=data.mcmc_parameters['Omega_c^{gro}']['current'],
+                    Omega_b=data.mcmc_parameters['Omega_b^{gro}']['current'],
+                    h=data.mcmc_parameters['h^{gro}']['current'], 
+                    sigma8=data.mcmc_parameters['sigma8^{gro}']['current'], 
+                    n_s=data.mcmc_parameters['n_s^{gro}']['current'])
+        return cosmo_gro
 
     def get_sigma8(self):
         return ccl.sigma8(self.cosmo_ccl)
@@ -84,16 +100,14 @@ class CCL():
         return True
 
     def compute(self, level=[]):
-        self.cosmo_ccl = self.get_cosmo_ccl()
+        cosmo_gro = self.get_cosmo_gro()
         # Modified growth part
         if 'growth_param' in self.pars:
-            pk = ccl.boltzmann.get_class_pk_lin(self.cosmo_ccl)
-            pknew = ccl.Pk2D(pkfunc=self.pk2D_new(pk), cosmo=self.cosmo_ccl,
-                             is_logp=False)
-            ccl.ccllib.cosmology_compute_linear_power(self.cosmo_ccl.cosmo,
-                                                      pknew.psp, 0)
-
-        # self.cosmo_ccl.compute_nonlin_power()
+            k_arr, pk0 = self.emulator.get_emulated_Pk(cosmo_gro['Omega_c'], cosmo_gro['h'])
+            pk0_k = scipy.interpolate.interp1d(k_arr, np.exp(pk0.real), kind='linear')
+            pknew = ccl.Pk2D(pkfunc=self.pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
+            ccl.ccllib.cosmology_compute_linear_power(cosmo_gro.cosmo, pknew.psp, 0)
+            # self.cosmo_ccl.compute_nonlin_power()
         ccl.sigma8(self.cosmo_ccl)  # David's suggestion
         return
 
@@ -117,20 +131,7 @@ class CCL():
 
         return derived
 
-    def dpk(self, a):
-        result = 0
-        if self.pars['growth_param'] == 'linear':
-            i = 0
-            while True:
-                pname = 'dpk' + str(i)
-                if pname not in self.pars:
-                    break
-                dpki = self.pars[pname]
-                result += dpki / np.math.factorial(i) * (1-a)**i
-                i += 1
-        return result
-
-    def pk2D_new(self, pk):
+    def pk2D(self, pk):
         def pknew(k, a):
-            return (1 + self.dpk(a)) ** 2 * pk.eval(k, a, self.cosmo_ccl)
+            return ccl.background.growth_factor(cosmo, a) ** 2 * pk(k)
         return pknew

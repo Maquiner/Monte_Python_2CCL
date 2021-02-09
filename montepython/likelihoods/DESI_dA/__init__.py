@@ -23,7 +23,7 @@ class DESI_dA(Likelihood):
         
         # Initialize classy instance 
         self.classy = ccl.boltzmann.classy.Class()
-        self.classy.compute()
+        #self.classy.compute()
         
     def loglkl(self, cosmo, data):
         
@@ -32,12 +32,13 @@ class DESI_dA(Likelihood):
                 'Omega_cdm': data.mcmc_parameters['Omega_c']['current'],
                 'Omega_b': data.mcmc_parameters['Omega_b']['current'],
                 #'sigma8': 2.43e-9 * (data.mcmc_parameters['sigma8']['current'] / 0.87659)**2,
-                #'n_s': data.mcmc_parameters['n_s']['current'],
+                'n_s': data.mcmc_parameters['n_s']['current'],
                 'Omega_Lambda': 0,
                 'w0_fld': data.mcmc_parameters['w_0']['current'],
                 'wa_fld': data.mcmc_parameters['w_a']['current']}
         self.classy.set(sampled_params) 
-        
+        self.classy.compute()
+
         # calculate theory
         dA_arr = np.array([])
         H_arr = np.array([])
@@ -55,4 +56,3 @@ class DESI_dA(Likelihood):
 
         return loglkl 
     
-

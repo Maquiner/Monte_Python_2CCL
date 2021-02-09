@@ -11,13 +11,6 @@ import shutil  # To copy the yml file to the outdir
 import sacc
 import scipy
 from numpy import linalg
-from sklearn.decomposition import PCA
-
-#Emulators import
-import sys
-sys.path.insert(1, '/mnt/zfsusers/jaimerz/Monte_Python_2CCL/montepython/likelihoods/cl_cross_corr_2CCL')
-import lin_pk_emul as emul
-
 
 class cl_cross_corr_2CCL(Likelihood):
 
@@ -80,8 +73,6 @@ class cl_cross_corr_2CCL(Likelihood):
         # Save a copy of the covmat, ells and cls for the tracer_combinations used for debugging
         np.savez_compressed(os.path.join(self.outdir, 'cl_cross_corr_data_info.npz'), cov=self.cov,
                             ells=ells, cls=self.data, tracers=self.scovG.get_tracer_combinations(), dof=self.dof)
-        # start emulator
-        self.emulator = emul.LinPkEmulator(10, 200, 100, new=False)
 
         # end of initialization
 
@@ -173,18 +164,6 @@ class cl_cross_corr_2CCL(Likelihood):
         # Initialize logprior
         lp = 0.
 
-        cosmo_gro = ccl.Cosmology(Omega_c=data.mcmc_parameters['Omega_c^{gro}']['current'],
-                Omega_b=data.mcmc_parameters['Omega_b^{gro}']['current'],
-                h=data.mcmc_parameters['h^{gro}']['current'], 
-                sigma8=data.mcmc_parameters['sigma8^{gro}']['current'], 
-                n_s=data.mcmc_parameters['n_s^{gro}']['current'],
-                transfer_function='boltzmann_class')
-
-        k_arr, pk0 = self.emulator.get_emulated_Pk(cosmo_gro['Omega_c'], cosmo_gro['h'])
-        pk0_k = scipy.interpolate.interp1d(k_arr, np.exp(pk0.real), kind='linear')
-        pknew = ccl.Pk2D(pkfunc=self.pk2D(pk0_k), cosmo=cosmo_gro, is_logp=False)
-        ccl.ccllib.cosmology_compute_linear_power(cosmo_gro.cosmo, pknew.psp, 0)
-
         # Initialize dictionary with ccl_tracers
         ccl_tracers = {}
 
@@ -268,8 +247,3 @@ class cl_cross_corr_2CCL(Likelihood):
 
 
         return lkl
-
-    def pk2D(self, pk):
-        def pknew(k, a):
-            return ccl.background.growth_factor(cosmo, a) ** 2 * pk(k)
-        return pknew
